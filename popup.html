@@ -1,61 +1,93 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Keta Dashboard</title>
+  <title>كيتا — إدارة السائقين</title>
   <style>
-    :root {
-      --bg: #111827;
-      --text: #f3f4f6;
-      --brand: #ff6b00;
-      --brand-hover: #e66000;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      width: 300px;
-      margin: 0;
-      padding: 20px;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      width: 290px;
+      background: #070a10;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      direction: rtl;
+    }
+    .header {
+      background: linear-gradient(135deg, #1a1f2e, #0d1117);
+      border-bottom: 1px solid #06b6d430;
+      padding: 22px 20px 18px;
       text-align: center;
     }
-    .icon {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 15px;
-      border-radius: 12px;
+    .icon { font-size: 42px; display: block; margin-bottom: 10px;
+      animation: float 3s ease-in-out infinite; }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
     }
-    h1 {
-      font-size: 18px;
-      margin: 0 0 10px 0;
-      color: var(--brand);
+    h1 { font-size: 16px; font-weight: 900; color: #06b6d4; letter-spacing: 0.5px; }
+    .sub { font-size: 11px; color: #64748b; margin-top: 4px; }
+    .body { padding: 18px; }
+    .open-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #0891b2, #0e7490);
+      border: none; border-radius: 10px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    p {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 20px;
+    .open-btn:hover {
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px #06b6d440;
     }
-    button {
-      background-color: var(--brand);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
+    .open-btn:active { transform: translateY(0); }
+    .status-info {
+      margin-top: 12px; padding: 10px 14px;
+      background: #111827; border-radius: 8px;
+      border: 1px solid #1e2d42;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: #94a3b8;
     }
-    button:hover {
-      background-color: var(--brand-hover);
+    .dot {
+      width: 8px; height: 8px;
+      background: #22c55e; border-radius: 50%; flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
     }
+    @keyframes pulse {
+      0%,100% { opacity:1; box-shadow:0 0 0 0 #22c55e50; }
+      50%      { opacity:0.7; box-shadow:0 0 0 5px #22c55e00; }
+    }
+    .notice {
+      margin-top: 10px; padding: 10px 12px;
+      background: #1a2234; border: 1px solid #1e2d42;
+      border-radius: 8px; font-size: 11px; color: #94a3b8; line-height: 1.6;
+    }
+    .notice a { color: #06b6d4; text-decoration: none; }
+    .version { text-align: center; font-size: 10px; color: #374151; padding: 10px; }
   </style>
 </head>
 <body>
-  <img src="icons/icon128.png" class="icon" alt="Keta">
-  <h1>لوحة تحكم كيتا</h1>
-  <p>تتبع مباشر للسائقين والطلبات</p>
-  <button id="btnOpen">فتح لوحة التحكم</button>
+  <div class="header">
+    <span class="icon">🛵</span>
+    <h1>لوحة تحكم كيتا</h1>
+    <p class="sub">Keeta Courier Dashboard</p>
+  </div>
+  <div class="body">
+    <button class="open-btn" id="openDashboard">
+      <span>🚀</span>
+      <span>فتح لوحة التحكم</span>
+    </button>
+    <div class="status-info">
+      <div class="dot"></div>
+      <span>يفتح اللوحة في تبويب جديد</span>
+    </div>
+    <div class="notice">
+      ⚠️ تأكد من تسجيل الدخول في
+      <a href="https://courier.mykeeta.com" target="_blank">courier.mykeeta.com</a>
+      قبل فتح اللوحة.
+    </div>
+  </div>
+  <div class="version">v1.0.0 — Keeta Live Ops</div>
   <script src="popup.js"></script>
 </body>
 </html>

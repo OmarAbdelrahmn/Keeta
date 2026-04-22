@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "Origin",  "operation": "set", "value": "https://courier.mykeeta.com" },
+        { "header": "Referer", "operation": "set", "value": "https://courier.mykeeta.com/web/admin/courier" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "|https://courier.mykeeta.com/api/*",
+      "resourceTypes": ["xmlhttprequest"],
+      "excludedInitiatorDomains": ["courier.mykeeta.com"]
+    }
+  }
+]
