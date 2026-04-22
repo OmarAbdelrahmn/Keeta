@@ -16,13 +16,13 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["https://courier.mykeeta.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ],
+"content_scripts": [
+  {
+    "matches": ["https://courier.mykeeta.com/*"],
+    "js": ["content.js"],
+    "run_at": "document_start"
+  }
+],
   "declarative_net_request": {
     "rule_resources": [
       {
