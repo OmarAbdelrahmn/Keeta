@@ -1,14 +1,5 @@
 'use strict';
 
-/**
- * Background Service Worker — Message Router
- * ─────────────────────────────────────────────────────────────────────────────
- * Routes API_FETCH requests from the dashboard to the content script running
- * inside a courier.mykeeta.com tab. The content script fetch runs in the
- * same-origin context so all session cookies are sent automatically.
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
 const SITE_ORIGIN = 'https://courier.mykeeta.com/*';
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -18,36 +9,40 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!tabs || tabs.length === 0) {
       sendResponse({
         error: 'NO_TAB',
-        message: 'يرجى فتح الموقع https://courier.mykeeta.com في أحد التبويبات أولاً',
+        message: 'يرجى فتح https://courier.mykeeta.com في أحد التبويبات أولاً',
       });
       return;
     }
 
     const target = tabs.find(t => t.status === 'complete') || tabs[0];
 
+    // Try sending first
     chrome.tabs.sendMessage(target.id, message, response => {
-      if (chrome.runtime.lastError) {
-        chrome.scripting.executeScript(
-          { target: { tabId: target.id }, files: ['content.js'] },
-          () => {
-            if (chrome.runtime.lastError) {
-              sendResponse({ error: `Script inject failed: ${chrome.runtime.lastError.message}` });
-              return;
-            }
-            setTimeout(() => {
-              chrome.tabs.sendMessage(target.id, message, response2 => {
-                if (chrome.runtime.lastError) {
-                  sendResponse({ error: chrome.runtime.lastError.message });
-                } else {
-                  sendResponse(response2);
-                }
-              });
-            }, 300);
-          }
-        );
-      } else {
+      if (!chrome.runtime.lastError) {
         sendResponse(response);
+        return;
       }
+
+      // Content script not loaded — inject it then retry ONCE
+      chrome.scripting.executeScript(
+        { target: { tabId: target.id }, files: ['content.js'] },
+        () => {
+          if (chrome.runtime.lastError) {
+            sendResponse({ error: `Inject failed: ${chrome.runtime.lastError.message}` });
+            return;
+          }
+          // Small delay for script to register its listener
+          setTimeout(() => {
+            chrome.tabs.sendMessage(target.id, message, response2 => {
+              if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError.message });
+              } else {
+                sendResponse(response2);
+              }
+            });
+          }, 100);
+        }
+      );
     });
   });
 
