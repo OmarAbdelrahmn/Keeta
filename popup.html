@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Keta Dashboard</title>
+  <style>
+    :root {
+      --bg: #111827;
+      --text: #f3f4f6;
+      --brand: #ff6b00;
+      --brand-hover: #e66000;
+    }
+    body {
+      width: 300px;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 10px 0;
+      color: var(--brand);
+    }
+    p {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: var(--brand);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: var(--brand-hover);
+    }
+  </style>
+</head>
+<body>
+  <img src="icons/icon128.png" class="icon" alt="Keta">
+  <h1>لوحة تحكم كيتا</h1>
+  <p>تتبع مباشر للسائقين والطلبات</p>
+  <button id="btnOpen">فتح لوحة التحكم</button>
+  <script src="popup.js"></script>
+</body>
+</html>
