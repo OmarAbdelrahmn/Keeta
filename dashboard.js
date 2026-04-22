@@ -54,10 +54,10 @@ const STRINGS = {
   ar: {
     brand_title: 'لوحة تحكم كيتا', brand_sub: 'Keeta Courier Live Ops',
     nav_dashboard: '🏠 الرئيسية', nav_map: '🗺 الخريطة',
-    stat_free: 'متاح', stat_going: 'في الطريق', stat_delivering: 'يوصل',
+    stat_free: 'بدون طلب', stat_going: 'لديه طلب', stat_delivering: 'يوصل',
     stat_timeout: '⏰ متأخر', stat_all: 'الكل',
     last_update_label: 'آخر تحديث', live: 'مباشر', auto_refresh: 'تحديث تلقائي',
-    filter_all: 'الكل', filter_free: 'متاح', filter_going: 'في الطريق',
+    filter_all: 'الكل', filter_free: 'بدون طلب', filter_going: 'لديه طلب',
     filter_delivering: 'يوصل', filter_timeout: '⏰ متأخر', filter_offline: 'غير متصل',
     sort_label: 'ترتيب:', sort_name: 'الاسم', sort_status: 'الحالة',
     sort_finished: 'التوصيلات', sort_online: 'وقت الاتصال',
@@ -65,7 +65,7 @@ const STRINGS = {
     cp_title: 'أداء الأسطول الإجمالي', cp_sub: 'Keeta · لوحة التحكم المباشرة',
     cp_timeout_alert: 'تنبيه: سائقون لديهم طلبات متأخرة —',
     cp_status_section: 'حالة السائقين',
-    cp_free_lbl: 'متاح', cp_going_lbl: 'في الطريق', cp_delivering_lbl: 'يوصل',
+    cp_free_lbl: 'بدون طلب', cp_going_lbl: 'لديه طلب', cp_delivering_lbl: 'يوصل',
     cp_timeout_lbl: 'لديه طلب متأخر', cp_offline_lbl: 'غير متصل',
     cp_deliveries_section: 'إجمالي التوصيلات',
     cp_finished_lbl: 'مكتملة', cp_active_lbl: 'نشطة الآن',
@@ -88,7 +88,7 @@ const STRINGS = {
     toast_fail: 'فشل تحميل البيانات', toast_auto_on: 'تحديث تلقائي كل 30 ثانية',
     toast_auto_off: 'تم إيقاف التحديث التلقائي',
     hour_lbl: 'س', min_lbl: 'د', less_min: '< دقيقة',
-    status_free: 'متاح', status_going: 'في الطريق', status_delivering: 'يوصل',
+    status_free: 'بدون طلب', status_going: 'لديه طلب', status_delivering: 'يوصل',
     status_offline: 'غير متصل', status_timeout: 'متأخر',
     theme_light: '☀️ فاتح', theme_dark: '🌙 داكن', lang_toggle: 'EN',
     card_basic: 'معلومات السائق', card_deliveries: 'التوصيلات', card_location: 'الموقع الحالي',
@@ -102,10 +102,10 @@ const STRINGS = {
   en: {
     brand_title: 'Keeta Dashboard', brand_sub: 'Keeta Courier Live Ops',
     nav_dashboard: '🏠 Dashboard', nav_map: '🗺 Map',
-    stat_free: 'Free', stat_going: 'Going', stat_delivering: 'Delivering',
+    stat_free: 'No Order', stat_going: 'Has Order', stat_delivering: 'Delivering',
     stat_timeout: '⏰ Late', stat_all: 'All',
     last_update_label: 'Last Update', live: 'Live', auto_refresh: 'Auto Refresh',
-    filter_all: 'All', filter_free: 'Free', filter_going: 'Going',
+    filter_all: 'All', filter_free: 'No Order', filter_going: 'Has Order',
     filter_delivering: 'Delivering', filter_timeout: '⏰ Late', filter_offline: 'Offline',
     sort_label: 'Sort:', sort_name: 'Name', sort_status: 'Status',
     sort_finished: 'Deliveries', sort_online: 'Online Time',
@@ -113,7 +113,7 @@ const STRINGS = {
     cp_title: 'Fleet Overview', cp_sub: 'Keeta · Live Control Panel',
     cp_timeout_alert: 'Alert: Couriers with timeout orders —',
     cp_status_section: 'Courier Status',
-    cp_free_lbl: 'Free', cp_going_lbl: 'Going', cp_delivering_lbl: 'Delivering',
+    cp_free_lbl: 'No Order', cp_going_lbl: 'Has Order', cp_delivering_lbl: 'Delivering',
     cp_timeout_lbl: 'Has Timeout Order', cp_offline_lbl: 'Offline',
     cp_deliveries_section: 'Total Deliveries',
     cp_finished_lbl: 'Completed', cp_active_lbl: 'Active Now',
@@ -136,7 +136,7 @@ const STRINGS = {
     toast_fail: 'Failed to load data', toast_auto_on: 'Auto-refresh every 30 seconds',
     toast_auto_off: 'Auto-refresh disabled',
     hour_lbl: 'h', min_lbl: 'm', less_min: '< 1 min',
-    status_free: 'Free', status_going: 'Going', status_delivering: 'Delivering',
+    status_free: 'No Order', status_going: 'Has Order', status_delivering: 'Delivering',
     status_offline: 'Offline', status_timeout: 'Late',
     theme_light: '☀️ Light', theme_dark: '🌙 Dark', lang_toggle: 'ع',
     card_basic: 'Courier Info', card_deliveries: 'Deliveries', card_location: 'Current Location',
@@ -166,7 +166,17 @@ function courierStatus(c) {
 }
 
 function isTimeout(c) {
-  return !!c.hasTimeoutOrder;
+  // Original: courier has a timeout order
+  if (c.hasTimeoutOrder) return true;
+
+  // New: courier is offline but has a shift covering the current moment
+  if (courierStatus(c) === 'offline') {
+    const nowUtc3 = Date.now() + (3 * 60 * 60 * 1000); // shift times may be stored in UTC+3
+    const shifts = c.shiftTimeRange || [];
+    return shifts.some(s => s.startTime <= nowUtc3 && s.endTime >= nowUtc3);
+  }
+
+  return false;
 }
 
 function courierFullName(c) {
@@ -978,7 +988,7 @@ function buildMap(el) {
   mapMarkers.forEach(m => { try { m.remove(); } catch (_) { } });
   mapMarkers = [];
 
-  const activeCouriers = allCouriers.filter(c => c.lat && c.lng);
+  const activeCouriers = allCouriers.filter(c => c.lat && c.lng && courierStatus(c) !== 'offline');
 
   const counts = { free: 0, going: 0, delivering: 0 };
   activeCouriers.forEach(c => {
