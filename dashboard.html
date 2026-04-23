@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="dashboard.css">
   <link rel="stylesheet" href="libs/leaflet.css">
 </head>
+
 <body>
 
   <!-- ═══ HEADER ═══ -->
@@ -22,7 +24,7 @@
 
     <div class="nav-btns">
       <button class="nav-btn active" data-page="dashboard" data-i18n="nav_dashboard">🏠 الرئيسية</button>
-      <button class="nav-btn"        data-page="map"       data-i18n="nav_map">🗺 الخريطة</button>
+      <button class="nav-btn" data-page="map" data-i18n="nav_map">🗺 الخريطة</button>
     </div>
 
     <div class="header-stats">
@@ -58,10 +60,11 @@
         <span class="update-time" id="lastUpdate">—</span>
       </div>
       <button class="btn-refresh" id="btnRefresh" title="Refresh">
-        <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"/>
-          <polyline points="1 20 1 14 7 14"/>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
         </svg>
       </button>
       <div class="auto-refresh-wrap">
@@ -85,28 +88,30 @@
     <aside class="sidebar">
       <div class="search-wrapper">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" id="searchInput" placeholder="بحث بالاسم أو الهاتف..." class="search-input" data-i18n-ph="search_placeholder">
+        <input type="text" id="searchInput" placeholder="بحث بالاسم أو الهاتف..." class="search-input"
+          data-i18n-ph="search_placeholder">
         <button class="search-clear" id="searchClear" style="display:none">✕</button>
       </div>
 
       <div class="filter-tabs">
-        <button class="filter-tab active" data-status="all"        data-i18n="filter_all">الكل</button>
-        <button class="filter-tab"        data-status="free"       data-i18n="filter_free">متاح</button>
-        <button class="filter-tab"        data-status="going"      data-i18n="filter_going">في الطريق</button>
-        <button class="filter-tab"        data-status="delivering" data-i18n="filter_delivering">يوصل</button>
+        <button class="filter-tab active" data-status="all" data-i18n="filter_all">الكل</button>
+        <button class="filter-tab" data-status="free" data-i18n="filter_free">متاح</button>
+        <button class="filter-tab" data-status="going" data-i18n="filter_going">في الطريق</button>
+        <button class="filter-tab" data-status="delivering" data-i18n="filter_delivering">يوصل</button>
         <button class="filter-tab timeout-tab" data-status="timeout" data-i18n="filter_timeout">⏰ متأخر</button>
-        <button class="filter-tab"        data-status="offline"    data-i18n="filter_offline">غير متصل</button>
+        <button class="filter-tab" data-status="offline" data-i18n="filter_offline">غير متصل</button>
       </div>
 
       <div class="sort-bar">
         <span class="sort-label" data-i18n="sort_label">ترتيب:</span>
         <select class="sort-select" id="sortSelect">
-          <option value="name"      data-i18n="sort_name">الاسم</option>
-          <option value="status"    data-i18n="sort_status">الحالة</option>
-          <option value="finished"  data-i18n="sort_finished">التوصيلات</option>
-          <option value="online"    data-i18n="sort_online">وقت الاتصال</option>
+          <option value="name" data-i18n="sort_name">الاسم</option>
+          <option value="status" data-i18n="sort_status">الحالة</option>
+          <option value="finished" data-i18n="sort_finished">التوصيلات</option>
+          <option value="online" data-i18n="sort_online">وقت الاتصال</option>
         </select>
       </div>
 
@@ -198,7 +203,9 @@
 
           <div class="cp-footer-hint">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             <span data-i18n="cp_footer_hint">انقر على أي سائق من القائمة لعرض تفاصيله الكاملة</span>
           </div>
@@ -226,19 +233,23 @@
           </div>
 
           <div class="detail-tabs">
-            <button class="detail-tab active" data-tab="overview"   data-i18n="tab_overview">نظرة عامة</button>
-            <button class="detail-tab"        data-tab="shifts"     data-i18n="tab_shifts">الورديات</button>
-            <button class="detail-tab"        data-tab="location"   data-i18n="tab_location">الموقع</button>
+            <button class="detail-tab active" data-tab="overview" data-i18n="tab_overview">نظرة عامة</button>
+            <button class="detail-tab" data-tab="shifts" data-i18n="tab_shifts">الورديات</button>
+            <button class="detail-tab" data-tab="location" data-i18n="tab_location">الموقع</button>
           </div>
         </div>
 
         <!-- TAB: Overview -->
         <div class="tab-content active" id="tab-overview">
           <div class="delivery-stats-row">
-            <div class="dstat"><span class="dstat-num" id="ds-delivering">0</span><span class="dstat-label" data-i18n="ds_delivering">نشطة</span></div>
-            <div class="dstat"><span class="dstat-num" id="ds-finished">0</span><span class="dstat-label"   data-i18n="ds_finished">مكتملة</span></div>
-            <div class="dstat"><span class="dstat-num" id="ds-canceled">0</span><span class="dstat-label"   data-i18n="ds_canceled">ملغاة</span></div>
-            <div class="dstat"><span class="dstat-num" id="ds-onlineTime">—</span><span class="dstat-label" data-i18n="ds_online_time">وقت الاتصال</span></div>
+            <div class="dstat"><span class="dstat-num" id="ds-delivering">0</span><span class="dstat-label"
+                data-i18n="ds_delivering">نشطة</span></div>
+            <div class="dstat"><span class="dstat-num" id="ds-finished">0</span><span class="dstat-label"
+                data-i18n="ds_finished">مكتملة</span></div>
+            <div class="dstat"><span class="dstat-num" id="ds-canceled">0</span><span class="dstat-label"
+                data-i18n="ds_canceled">ملغاة</span></div>
+            <div class="dstat"><span class="dstat-num" id="ds-onlineTime">—</span><span class="dstat-label"
+                data-i18n="ds_online_time">وقت الاتصال</span></div>
           </div>
           <div class="cards-grid" id="overviewCards"></div>
         </div>
@@ -275,11 +286,16 @@
     <div class="map-legend">
       <div class="map-legend-title" data-i18n="map_title">🗺 خريطة السائقين المباشرة</div>
       <div class="map-legend-items">
-        <div class="ml-item"><span class="ml-dot" style="background:#22c55e"></span><span data-i18n="map_free">متاح</span> (<b id="map-free">—</b>)</div>
-        <div class="ml-item"><span class="ml-dot" style="background:#3b82f6"></span><span data-i18n="map_going">في الطريق</span> (<b id="map-going">—</b>)</div>
-        <div class="ml-item"><span class="ml-dot" style="background:#f97316"></span><span data-i18n="map_delivering">يوصل</span> (<b id="map-delivering">—</b>)</div>
-        <div class="ml-item"><span class="ml-dot" style="background:#ef4444"></span><span data-i18n="map_timeout">متأخر</span></div>
-        <div class="ml-item"><span data-i18n="map_total">الإجمالي:</span> <b id="map-total">—</b> <span data-i18n="map_driver">سائق</span></div>
+        <div class="ml-item"><span class="ml-dot" style="background:#22c55e"></span><span
+            data-i18n="map_free">متاح</span> (<b id="map-free">—</b>)</div>
+        <div class="ml-item"><span class="ml-dot" style="background:#3b82f6"></span><span data-i18n="map_going">في
+            الطريق</span> (<b id="map-going">—</b>)</div>
+        <div class="ml-item"><span class="ml-dot" style="background:#f97316"></span><span
+            data-i18n="map_delivering">يوصل</span> (<b id="map-delivering">—</b>)</div>
+        <div class="ml-item"><span class="ml-dot" style="background:#ef4444"></span><span
+            data-i18n="map_timeout">متأخر</span></div>
+        <div class="ml-item"><span data-i18n="map_total">الإجمالي:</span> <b id="map-total">—</b> <span
+            data-i18n="map_driver">سائق</span></div>
       </div>
     </div>
     <div id="liveMap" class="live-map"></div>
@@ -288,4 +304,5 @@
   <div class="toast-container" id="toastContainer"></div>
   <script src="dashboard.js"></script>
 </body>
+
 </html>

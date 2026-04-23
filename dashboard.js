@@ -10,7 +10,7 @@ const DETAIL_ENDPOINT = 'https://courier.mykeeta.com/api/partner/dispatch/admin/
 
 const REFRESH_MS = 30_000;
 
-const ORG_ID   = 2960;
+const ORG_ID = 2960;
 const ORG_TYPE = 24;
 // ── COURIER STATUS CODES ───────────────────────────────
 // 10 = Free / Online (متاح)
@@ -167,7 +167,7 @@ function courierStatus(c) {
 
 function isTimeout(c) {
   // Original: courier has a timeout order
-  if (c.hasTimeoutOrder) return true;
+  // if (c.hasTimeoutOrder) return true;
 
   // New: courier is offline but has a shift covering the current moment
   if (courierStatus(c) === 'offline') {
@@ -276,19 +276,19 @@ async function apiPost(url, body) {
 }
 // FIND THIS:
 async function fetchAllCouriers() {
-  let allContent   = [];
-  let coordinates  = [];
-  let pageNo       = 1;
-  let totalPages   = 1;
+  let allContent = [];
+  let coordinates = [];
+  let pageNo = 1;
+  let totalPages = 1;
 
   do {
     const body = {
       pageNo,
       pageSize: 100,
       courierStatus: null,
-      keyword:       null,
-      vehicleType:   null,
-      shiftAreaId:   null,
+      keyword: null,
+      vehicleType: null,
+      shiftAreaId: null,
     };
 
     const resp = await apiPost(API_ENDPOINT, body);
@@ -316,8 +316,8 @@ async function fetchAllCouriers() {
     const coord = coordMap.get(c.courierId) || {};
     return {
       ...c,
-      lat: coord.lat  || c.courierLat,
-      lng: coord.lng  || c.courierLng,
+      lat: coord.lat || c.courierLat,
+      lng: coord.lng || c.courierLng,
       locationUpdateTime: coord.latestUpdateTime || null,
       coordinateStatus: coord.courierStatus,
     };
@@ -326,20 +326,20 @@ async function fetchAllCouriers() {
 
 // REPLACE WITH:
 async function fetchAllCouriers() {
-  let allContent  = [];
+  let allContent = [];
   let coordinates = [];
-  let pageNum     = 1;
-  let totalPages  = 1;
+  let pageNum = 1;
+  let totalPages = 1;
 
   do {
     const body = {
-      sortField:        0,
-      pageSize:         30,
-      pageNum:          pageNum,
+      sortField: 0,
+      pageSize: 30,
+      pageNum: pageNum,
       capacityTypeList: [2],
-      orgId:            ORG_ID,
-      orgType:          ORG_TYPE,
-      source:           0,
+      orgId: ORG_ID,
+      orgType: ORG_TYPE,
+      source: 0,
     };
 
     const resp = await apiPost(API_ENDPOINT, body);
@@ -375,7 +375,7 @@ async function fetchAllCouriers() {
       lat: coord.lat || c.courierLat,
       lng: coord.lng || c.courierLng,
       locationUpdateTime: coord.latestUpdateTime || null,
-      coordinateStatus:   coord.courierStatus,
+      coordinateStatus: coord.courierStatus,
     };
   });
 }
@@ -605,16 +605,16 @@ async function loadCouriers(silent = false) {
 // ADD BEFORE IT:
 async function fetchCourierDetail(courier) {
   const body = {
-    taskId:        "",
-    courierId:     String(courier.courierId),
-    currentShift:  null,
-    orgId:         ORG_ID,
-    orgType:       ORG_TYPE,
+    taskId: "",
+    courierId: String(courier.courierId),
+    currentShift: null,
+    orgId: ORG_ID,
+    orgType: ORG_TYPE,
     shiftTimeRange: (courier.shiftTimeRange || []).map(s => ({
       underSchedule: s.underSchedule,
-      startTime:     s.startTime,
-      endTime:       s.endTime,
-      shiftAreaId:   s.shiftAreaId,
+      startTime: s.startTime,
+      endTime: s.endTime,
+      shiftAreaId: s.shiftAreaId,
     })),
     source: 0,
   };
@@ -630,7 +630,7 @@ async function selectCourier(id) {
     c.classList.toggle('selected', c.dataset.id === String(id))
   );
 
-  document.getElementById('emptyState').style.display    = 'none';
+  document.getElementById('emptyState').style.display = 'none';
   document.getElementById('courierDetail').style.display = 'flex';
 
   const panel = document.getElementById('detailPanel');
@@ -658,7 +658,7 @@ async function selectCourier(id) {
       renderShiftsTab(courier);
       renderLocationTab(courier);
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('[Keeta] detail fetch failed:', e.message);
   }
 }
