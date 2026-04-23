@@ -44,6 +44,37 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
 }
 
+.branch-filter-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.branch-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: var(--font-main);
+  white-space: nowrap;
+}
+
+.branch-btn:hover {
+  background: var(--bg-card2);
+  color: var(--text-primary);
+}
+
+.branch-btn.active {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border-color: var(--blue);
+  font-weight: 700;
+}
+
 /* ── LIGHT THEME ── */
 [data-theme="light"] {
   --bg-base:    #f0f6fa;

@@ -10,8 +10,8 @@ const DETAIL_ENDPOINT = 'https://courier.mykeeta.com/api/partner/dispatch/admin/
 
 const REFRESH_MS = 30_000;
 
-const ORG_ID   = 2960;
-const ORG_TYPE = 24;
+let ORG_ID   = 2960;
+let ORG_TYPE = 24;
 // ── COURIER STATUS CODES ───────────────────────────────
 // 10 = Free / Online (hidden from UI — treated as offline)
 // 20 = Going / No Order (بدون طلب) — rider is online but has no active order
@@ -46,8 +46,30 @@ let currentPage = 'dashboard';
 let leafletMap = null;
 let mapTileLayer = null;
 let mapMarkers = [];
+let currentBranch = { id: 2960, type: 24 };
 let currentLang = localStorage.getItem('keeta_lang') || 'ar';
 let currentTheme = localStorage.getItem('keeta_theme') || 'dark';
+
+// ── BRANCH FILTER ──────────────────────────────────────
+function switchBranch(orgId, orgType, btn) {
+  ORG_ID   = orgId;
+  ORG_TYPE = orgType;
+  currentBranch = { id: orgId, type: orgType };
+
+  document.querySelectorAll('.branch-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Reset courier state
+  allCouriers    = [];
+  filteredCouriers = [];
+  prevStatuses   = {};
+  selectedId     = null;
+  document.getElementById('courierDetail').style.display = 'none';
+  document.getElementById('emptyState').style.display    = 'flex';
+  document.querySelectorAll('.courier-card').forEach(c => c.classList.remove('selected'));
+
+  loadCouriers();
+}
 
 // ── TRANSLATIONS ───────────────────────────────────────
 const STRINGS = {
@@ -1082,6 +1104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('emptyState').style.display = 'flex';
     document.querySelectorAll('.courier-card').forEach(c => c.classList.remove('selected'));
   });
+  
+  document.querySelectorAll('.branch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const orgId   = parseInt(btn.dataset.orgId,  10);
+    const orgType = parseInt(btn.dataset.orgType, 10);
+    switchBranch(orgId, orgType, btn);
+  });
+});
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'r') { e.preventDefault(); loadCouriers(); }
