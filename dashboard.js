@@ -196,6 +196,33 @@ function vehicleLabel(type) {
   return VEHICLE_LABEL[type] || `نوع ${type}`;
 }
 
+// ── IRREGULAR STATUS WARNINGS ──────────────────────────
+// Known codes in irregularStatusInterveneCount:
+//   "50" → rider rejected orders
+//   "30" → failed to load location
+const IRREGULAR_LABEL = {
+  ar: { '50': 'رفض الطلب', '30': 'فشل تحميل الموقع' },
+  en: { '50': 'Rejected Orders', '30': 'Location Failure' },
+};
+
+function getIrregularWarnings(c) {
+  // Returns array of { code, label, count } for any non-zero irregular counts
+  const map = c.irregularStatusInterveneCount;
+  if (!map || typeof map !== 'object') return [];
+  return Object.entries(map)
+    .filter(([, count]) => count > 0)
+    .map(([code, count]) => ({
+      code,
+      count,
+      label: (IRREGULAR_LABEL[currentLang] || IRREGULAR_LABEL.ar)[code]
+        || (currentLang === 'ar' ? `حالة ${code}` : `Code ${code}`),
+    }));
+}
+
+function hasIrregularWarnings(c) {
+  return getIrregularWarnings(c).length > 0;
+}
+
 // ── HELPERS ────────────────────────────────────────────
 function courierStatus(c) {
   return STATUS_MAP[c.courierStatus] || 'offline';
@@ -436,6 +463,17 @@ function buildCourierCard(c) {
     ? `<span style="display:none">${avatarInitial(name)}</span>`
     : avatarInitial(name);
 
+  const warnings = getIrregularWarnings(c);
+  const warningHtml = warnings.length
+    ? `<div class="courier-card-warnings">${
+        warnings.map(w =>
+          `<span class="irregular-pill" title="${w.label}">
+            ⚠ ${w.label} (${w.count})
+          </span>`
+        ).join('')
+      }</div>`
+    : '';
+
   card.innerHTML = `
     ${timeout ? '<div class="timeout-indicator"></div>' : ''}
     <div class="courier-avatar ${avCls}">${imgHtml}${fallback}</div>
@@ -444,6 +482,7 @@ function buildCourierCard(c) {
       <div class="courier-card-sub">
         ${c.courierLicenseNumber || '—'} · +${c.courierCountryCode || ''}${c.courierPhoneNumber || ''}
       </div>
+      ${warningHtml}
     </div>
     <div class="courier-card-meta">
       <span class="badge ${badgeCls}">${statusLbl}</span>
@@ -763,6 +802,25 @@ function renderOverviewTab(c) {
       <span class="info-val" style="color:var(--red)">${c.canceledTaskCount || 0}</span>
     </div>`;
   container.appendChild(delCard);
+
+  // ── Irregular Warnings Card ──
+  const warnings = getIrregularWarnings(c);
+  if (warnings.length) {
+    const warnCard = document.createElement('div');
+    warnCard.className = 'info-card warn-card';
+    warnCard.innerHTML = `
+      <div class="card-header">
+        <span class="card-icon">🚨</span>
+        <h3>${currentLang === 'ar' ? 'تحذيرات السلوك' : 'Behaviour Warnings'}</h3>
+      </div>
+      ${warnings.map(w => `
+        <div class="info-row irregular-row">
+          <span class="info-label irregular-label">⚠ ${w.label}</span>
+          <span class="info-val irregular-count">${w.count} ${currentLang === 'ar' ? 'مرة' : 'time(s)'}</span>
+        </div>`).join('')}
+    `;
+    container.appendChild(warnCard);
+  }
 }
 
 function renderShiftsTab(c) {

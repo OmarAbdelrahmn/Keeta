@@ -563,3 +563,56 @@ html, body {
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   height:100%; color:var(--text-muted); gap:12px; font-size:13px; padding:40px; text-align:center;
 }
+
+/* ── IRREGULAR WARNINGS ── */
+.courier-card-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.irregular-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .irregular-pill {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.warn-card {
+  border-color: var(--red-dim) !important;
+  background: linear-gradient(to bottom, var(--bg-card), #2d101030) !important;
+}
+
+.warn-card .card-header {
+  border-bottom-color: var(--red-dim);
+}
+
+.warn-card h3 {
+  color: var(--red);
+}
+
+.irregular-row {
+  border-bottom-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.irregular-label {
+  color: var(--red) !important;
+  font-weight: 700;
+}
+
+.irregular-count {
+  color: var(--red) !important;
+  font-weight: 900;
+}
