@@ -72,17 +72,17 @@
   --shadow-card: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-[data-theme="light"] .badge-free      { background:#dcfce7; color:#15803d; }
-[data-theme="light"] .badge-going     { background:#dbeafe; color:#1d4ed8; }
-[data-theme="light"] .badge-delivering{ background:#fef3c7; color:#d97706; }
-[data-theme="light"] .badge-offline   { background:#f1f5f9; color:#64748b; }
-[data-theme="light"] .badge-timeout   { background:#fee2e2; color:#b91c1c; }
+/* badge-going is now the "بدون طلب" (no order / available) badge — use green in light */
+[data-theme="light"] .badge-going      { background:#dcfce7; color:#15803d; }
+[data-theme="light"] .badge-delivering { background:#fef3c7; color:#d97706; }
+[data-theme="light"] .badge-offline    { background:#f1f5f9; color:#64748b; }
+[data-theme="light"] .badge-timeout    { background:#fee2e2; color:#b91c1c; }
 
-[data-theme="light"] .stat-pill.free      { background:#dcfce7; border-color:#86efac; color:#15803d; }
-[data-theme="light"] .stat-pill.going     { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
-[data-theme="light"] .stat-pill.delivering{ background:#fef3c7; border-color:#fcd34d; color:#d97706; }
-[data-theme="light"] .stat-pill.timeout   { background:#fee2e2; border-color:#fca5a5; color:#b91c1c; }
-[data-theme="light"] .stat-pill.total     { background:var(--bg-card); border-color:var(--border); color:var(--text-secondary); }
+/* stat-pill.going is now "بدون طلب" — use green */
+[data-theme="light"] .stat-pill.going      { background:#dcfce7; border-color:#86efac; color:#15803d; }
+[data-theme="light"] .stat-pill.delivering { background:#fef3c7; border-color:#fcd34d; color:#d97706; }
+[data-theme="light"] .stat-pill.timeout    { background:#fee2e2; border-color:#fca5a5; color:#b91c1c; }
+[data-theme="light"] .stat-pill.total      { background:var(--bg-card); border-color:var(--border); color:var(--text-secondary); }
 [data-theme="light"] .rider-card.timeout-card { border-color:#fca5a5; background:#fff5f5; }
 
 [data-theme="light"] .cp-card:hover { border-color: var(--cyan-dim); }
@@ -150,11 +150,14 @@ html, body {
   display:flex; align-items:center; gap:5px; border:1px solid transparent; transition:all .2s;
 }
 .stat-pill span { font-size:13px; font-weight:900; }
-.stat-pill.free       { background:#16321e; border-color:#166534; color:var(--green); }
-.stat-pill.going      { background:#1e2d4a; border-color:#1e3a8a; color:var(--blue); }
+
+/* going = بدون طلب (no order / available) → green */
+.stat-pill.going      { background:#16321e; border-color:#166534; color:var(--green); }
+/* delivering = يوصل (has order) → orange */
 .stat-pill.delivering { background:#2d1f0e; border-color:#92400e; color:var(--orange); }
 .stat-pill.timeout    { background:#2d1010; border-color:#991b1b; color:var(--red); animation:timeout-pulse 2s ease-in-out infinite; }
 .stat-pill.total      { background:#1a1f2e; border-color:var(--border); color:var(--text-secondary); }
+
 @keyframes timeout-pulse {
   0%,100%{box-shadow:0 0 0 0 #ef444420;} 50%{box-shadow:0 0 0 6px #ef444408;}
 }
@@ -317,12 +320,13 @@ html, body {
 .badge {
   padding:2px 6px; border-radius:99px; font-size:9px; font-weight:700; white-space:nowrap;
 }
-.badge-free       { background:var(--green-dim);  color:var(--green); }
-.badge-going      { background:var(--blue-dim);    color:var(--blue); }
-.badge-delivering { background:var(--orange-dim);  color:var(--orange); }
-.badge-offline    { background:#1f2937;             color:#6b7280; }
-.badge-timeout    { background:var(--red-dim);     color:var(--red); }
-.badge-scheduled  { background:#1e3a1e;             color:#4ade80; font-size:8px; }
+/* going = بدون طلب (no order) → green badge */
+.badge-going      { background:var(--green-dim);  color:var(--green); }
+/* delivering = يوصل (has order) → orange badge */
+.badge-delivering { background:var(--orange-dim); color:var(--orange); }
+.badge-offline    { background:#1f2937;            color:#6b7280; }
+.badge-timeout    { background:var(--red-dim);    color:var(--red); }
+.badge-scheduled  { background:#1e3a1e;            color:#4ade80; font-size:8px; }
 
 .deliveries-mini { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); }
 .timeout-indicator {

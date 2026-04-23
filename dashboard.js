@@ -10,12 +10,12 @@ const DETAIL_ENDPOINT = 'https://courier.mykeeta.com/api/partner/dispatch/admin/
 
 const REFRESH_MS = 30_000;
 
-const ORG_ID = 2960;
+const ORG_ID   = 2960;
 const ORG_TYPE = 24;
 // ── COURIER STATUS CODES ───────────────────────────────
-// 10 = Free / Online (متاح)
-// 20 = Going / In transit (في الطريق)
-// 30 = Delivering (يوصل)
+// 10 = Free / Online (hidden from UI — treated as offline)
+// 20 = Going / No Order (بدون طلب) — rider is online but has no active order
+// 30 = Delivering (يوصل) — rider has an active order
 // 40 = Offline / Break (غير متصل)
 
 const STATUS_MAP = {
@@ -26,9 +26,9 @@ const STATUS_MAP = {
 };
 
 const STATUS_BADGE = {
-  free: 'badge-free',
-  going: 'badge-going',
-  delivering: 'badge-delivering',
+  free: 'badge-offline',       // status 10 hidden; shown as offline
+  going: 'badge-going',        // بدون طلب (no order)
+  delivering: 'badge-delivering', // يوصل (has order)
   offline: 'badge-offline',
 };
 
@@ -54,10 +54,13 @@ const STRINGS = {
   ar: {
     brand_title: 'لوحة تحكم كيتا', brand_sub: 'Keeta Courier Live Ops',
     nav_dashboard: '🏠 الرئيسية', nav_map: '🗺 الخريطة',
-    stat_free: 'بدون طلب', stat_going: 'لديه طلب', stat_delivering: 'يوصل',
+    // stat_free removed from header
+    stat_going: 'بدون طلب', stat_delivering: 'يوصل',
     stat_timeout: '⏰ متأخر', stat_all: 'الكل',
     last_update_label: 'آخر تحديث', live: 'مباشر', auto_refresh: 'تحديث تلقائي',
-    filter_all: 'الكل', filter_free: 'بدون طلب', filter_going: 'لديه طلب',
+    filter_all: 'الكل',
+    // filter_free removed
+    filter_going: 'بدون طلب',
     filter_delivering: 'يوصل', filter_timeout: '⏰ متأخر', filter_offline: 'غير متصل',
     sort_label: 'ترتيب:', sort_name: 'الاسم', sort_status: 'الحالة',
     sort_finished: 'التوصيلات', sort_online: 'وقت الاتصال',
@@ -65,7 +68,8 @@ const STRINGS = {
     cp_title: 'أداء الأسطول الإجمالي', cp_sub: 'Keeta · لوحة التحكم المباشرة',
     cp_timeout_alert: 'تنبيه: سائقون لديهم طلبات متأخرة —',
     cp_status_section: 'حالة السائقين',
-    cp_free_lbl: 'بدون طلب', cp_going_lbl: 'لديه طلب', cp_delivering_lbl: 'يوصل',
+    // cp_free_lbl removed
+    cp_going_lbl: 'بدون طلب', cp_delivering_lbl: 'يوصل',
     cp_timeout_lbl: 'لديه طلب متأخر', cp_offline_lbl: 'غير متصل',
     cp_deliveries_section: 'إجمالي التوصيلات',
     cp_finished_lbl: 'مكتملة', cp_active_lbl: 'نشطة الآن',
@@ -78,7 +82,8 @@ const STRINGS = {
     shift_scheduled_yes: '✅ مجدول', shift_scheduled_no: '—',
     shift_active: 'نشطة 🟢', shift_upcoming: 'قادمة', shift_past: 'منتهية',
     map_title: '🗺 خريطة السائقين المباشرة',
-    map_free: 'متاح', map_going: 'في الطريق', map_delivering: 'يوصل',
+    // map_free removed; map_going is now "بدون طلب" in green
+    map_going: 'بدون طلب', map_delivering: 'يوصل',
     map_timeout: 'متأخر', map_total: 'الإجمالي:', map_driver: 'سائق',
     map_error: 'تعذر تحميل مكتبة الخرائط',
     map_error_sub: 'ضع ملفات Leaflet في مجلد libs/ داخل الإضافة (leaflet.js و leaflet.css)',
@@ -88,7 +93,9 @@ const STRINGS = {
     toast_fail: 'فشل تحميل البيانات', toast_auto_on: 'تحديث تلقائي كل 30 ثانية',
     toast_auto_off: 'تم إيقاف التحديث التلقائي',
     hour_lbl: 'س', min_lbl: 'د', less_min: '< دقيقة',
-    status_free: 'بدون طلب', status_going: 'لديه طلب', status_delivering: 'يوصل',
+    // status_free removed from display; going = بدون طلب
+    status_free: 'غير متصل',
+    status_going: 'بدون طلب', status_delivering: 'يوصل',
     status_offline: 'غير متصل', status_timeout: 'متأخر',
     theme_light: '☀️ فاتح', theme_dark: '🌙 داكن', lang_toggle: 'EN',
     card_basic: 'معلومات السائق', card_deliveries: 'التوصيلات', card_location: 'الموقع الحالي',
@@ -102,10 +109,13 @@ const STRINGS = {
   en: {
     brand_title: 'Keeta Dashboard', brand_sub: 'Keeta Courier Live Ops',
     nav_dashboard: '🏠 Dashboard', nav_map: '🗺 Map',
-    stat_free: 'No Order', stat_going: 'Has Order', stat_delivering: 'Delivering',
+    // stat_free removed from header
+    stat_going: 'No Order', stat_delivering: 'Delivering',
     stat_timeout: '⏰ Late', stat_all: 'All',
     last_update_label: 'Last Update', live: 'Live', auto_refresh: 'Auto Refresh',
-    filter_all: 'All', filter_free: 'No Order', filter_going: 'Has Order',
+    filter_all: 'All',
+    // filter_free removed
+    filter_going: 'No Order',
     filter_delivering: 'Delivering', filter_timeout: '⏰ Late', filter_offline: 'Offline',
     sort_label: 'Sort:', sort_name: 'Name', sort_status: 'Status',
     sort_finished: 'Deliveries', sort_online: 'Online Time',
@@ -113,7 +123,8 @@ const STRINGS = {
     cp_title: 'Fleet Overview', cp_sub: 'Keeta · Live Control Panel',
     cp_timeout_alert: 'Alert: Couriers with timeout orders —',
     cp_status_section: 'Courier Status',
-    cp_free_lbl: 'No Order', cp_going_lbl: 'Has Order', cp_delivering_lbl: 'Delivering',
+    // cp_free_lbl removed
+    cp_going_lbl: 'No Order', cp_delivering_lbl: 'Delivering',
     cp_timeout_lbl: 'Has Timeout Order', cp_offline_lbl: 'Offline',
     cp_deliveries_section: 'Total Deliveries',
     cp_finished_lbl: 'Completed', cp_active_lbl: 'Active Now',
@@ -126,7 +137,8 @@ const STRINGS = {
     shift_scheduled_yes: '✅ Scheduled', shift_scheduled_no: '—',
     shift_active: 'Active 🟢', shift_upcoming: 'Upcoming', shift_past: 'Past',
     map_title: '🗺 Live Courier Map',
-    map_free: 'Free', map_going: 'Going', map_delivering: 'Delivering',
+    // map_free removed; map_going is now "No Order" in green
+    map_going: 'No Order', map_delivering: 'Delivering',
     map_timeout: 'Late', map_total: 'Total on map:', map_driver: 'couriers',
     map_error: 'Failed to load map library',
     map_error_sub: 'Place Leaflet files inside libs/ folder of the extension',
@@ -136,7 +148,9 @@ const STRINGS = {
     toast_fail: 'Failed to load data', toast_auto_on: 'Auto-refresh every 30 seconds',
     toast_auto_off: 'Auto-refresh disabled',
     hour_lbl: 'h', min_lbl: 'm', less_min: '< 1 min',
-    status_free: 'No Order', status_going: 'Has Order', status_delivering: 'Delivering',
+    // status_free hidden; going = No Order
+    status_free: 'Offline',
+    status_going: 'No Order', status_delivering: 'Delivering',
     status_offline: 'Offline', status_timeout: 'Late',
     theme_light: '☀️ Light', theme_dark: '🌙 Dark', lang_toggle: 'ع',
     card_basic: 'Courier Info', card_deliveries: 'Deliveries', card_location: 'Current Location',
@@ -166,17 +180,10 @@ function courierStatus(c) {
 }
 
 function isTimeout(c) {
-  // Original: courier has a timeout order
-  // if (c.hasTimeoutOrder) return true;
-
-  // New: courier is offline but has a shift covering the current moment
-  if (courierStatus(c) === 'offline') {
-    const nowUtc3 = Date.now() + (3 * 60 * 60 * 1000); // shift times may be stored in UTC+3
-    const shifts = c.shiftTimeRange || [];
-    return shifts.some(s => s.startTime <= nowUtc3 && s.endTime >= nowUtc3);
-  }
-
-  return false;
+  if (courierStatus(c) !== 'offline') return false;
+  const now = Date.now();
+  const shifts = c.shiftTimeRange || [];
+  return shifts.some(s => s.startTime <= now && s.endTime >= now);
 }
 
 function courierFullName(c) {
@@ -274,72 +281,22 @@ async function apiPost(url, body) {
     );
   });
 }
-// FIND THIS:
+
 async function fetchAllCouriers() {
-  let allContent = [];
+  let allContent  = [];
   let coordinates = [];
-  let pageNo = 1;
-  let totalPages = 1;
+  let pageNum     = 1;
+  let totalPages  = 1;
 
   do {
     const body = {
-      pageNo,
-      pageSize: 100,
-      courierStatus: null,
-      keyword: null,
-      vehicleType: null,
-      shiftAreaId: null,
-    };
-
-    const resp = await apiPost(API_ENDPOINT, body);
-
-    if (resp.code !== 0) {
-      throw new Error(`API returned code ${resp.code}: ${resp.msg || 'unknown error'}`);
-    }
-
-    const { allCourierCoordinate, pageCourierInfo } = resp.data;
-
-    if (pageNo === 1 && allCourierCoordinate) {
-      coordinates = allCourierCoordinate;
-    }
-
-    const pc = pageCourierInfo?.pageContent || [];
-    allContent.push(...pc);
-
-    totalPages = pageCourierInfo?.page?.totalPageCount || 1;
-    pageNo++;
-  } while (pageNo <= totalPages);
-
-  const coordMap = new Map(coordinates.map(c => [c.courierId, c]));
-
-  return allContent.map(c => {
-    const coord = coordMap.get(c.courierId) || {};
-    return {
-      ...c,
-      lat: coord.lat || c.courierLat,
-      lng: coord.lng || c.courierLng,
-      locationUpdateTime: coord.latestUpdateTime || null,
-      coordinateStatus: coord.courierStatus,
-    };
-  });
-}
-
-// REPLACE WITH:
-async function fetchAllCouriers() {
-  let allContent = [];
-  let coordinates = [];
-  let pageNum = 1;
-  let totalPages = 1;
-
-  do {
-    const body = {
-      sortField: 0,
-      pageSize: 30,
-      pageNum: pageNum,
+      sortField:        0,
+      pageSize:         30,
+      pageNum:          pageNum,
       capacityTypeList: [2],
-      orgId: ORG_ID,
-      orgType: ORG_TYPE,
-      source: 0,
+      orgId:            ORG_ID,
+      orgType:          ORG_TYPE,
+      source:           0,
     };
 
     const resp = await apiPost(API_ENDPOINT, body);
@@ -360,7 +317,6 @@ async function fetchAllCouriers() {
     const page = pageCourierInfo?.page || {};
     totalPages = page.totalPageCount || page.pages || 1;
 
-    // Safety cap — never loop more than 20 pages
     if (pageNum >= 20) break;
     pageNum++;
 
@@ -375,23 +331,24 @@ async function fetchAllCouriers() {
       lat: coord.lat || c.courierLat,
       lng: coord.lng || c.courierLng,
       locationUpdateTime: coord.latestUpdateTime || null,
-      coordinateStatus: coord.courierStatus,
+      coordinateStatus:   coord.courierStatus,
     };
   });
 }
+
 // ── STATS ──────────────────────────────────────────────
 function computeStats(couriers) {
   const s = {
-    free: 0, going: 0, delivering: 0, offline: 0, timeout: 0,
+    // free (status 10) merged into offline — not tracked separately
+    going: 0, delivering: 0, offline: 0, timeout: 0,
     totalFinished: 0, totalActive: 0, totalCanceled: 0, totalOnlineMs: 0,
     total: couriers.length
   };
   couriers.forEach(c => {
     const st = courierStatus(c);
-    if (st === 'free') s.free++;
-    else if (st === 'going') s.going++;
+    if (st === 'going') s.going++;
     else if (st === 'delivering') s.delivering++;
-    else s.offline++;
+    else s.offline++;          // free (10) and offline (40) both count as offline
     if (isTimeout(c)) s.timeout++;
     s.totalFinished += c.finishedTaskCount || 0;
     s.totalActive += c.deliveryingTaskCount || 0;
@@ -403,7 +360,7 @@ function computeStats(couriers) {
 
 // ── RENDER COMPANY STATS ───────────────────────────────
 function renderCompanyStats(stats) {
-  setText('cp-free', stats.free);
+  // cp-free element removed from HTML; cp-going now represents "بدون طلب"
   setText('cp-going', stats.going);
   setText('cp-delivering', stats.delivering);
   setText('cp-timeout', stats.timeout);
@@ -427,7 +384,7 @@ function renderCompanyStats(stats) {
 
 function updateHeaderStats(couriers) {
   const s = computeStats(couriers);
-  setText('stat-free', s.free);
+  // stat-free element removed from HTML
   setText('stat-going', s.going);
   setText('stat-delivering', s.delivering);
   setText('stat-timeout', s.timeout);
@@ -549,7 +506,6 @@ async function loadCouriers(silent = false) {
   try {
     allCouriers = await fetchAllCouriers();
 
-    // Detect status changes and notify
     if (Object.keys(prevStatuses).length > 0) {
       let changed = false;
       allCouriers.forEach(c => {
@@ -602,27 +558,24 @@ async function loadCouriers(silent = false) {
   }
 }
 
-// ADD BEFORE IT:
 async function fetchCourierDetail(courier) {
   const body = {
-    taskId: "",
-    courierId: String(courier.courierId),
-    currentShift: null,
-    orgId: ORG_ID,
-    orgType: ORG_TYPE,
+    taskId:        "",
+    courierId:     String(courier.courierId),
+    currentShift:  null,
+    orgId:         ORG_ID,
+    orgType:       ORG_TYPE,
     shiftTimeRange: (courier.shiftTimeRange || []).map(s => ({
       underSchedule: s.underSchedule,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      shiftAreaId: s.shiftAreaId,
+      startTime:     s.startTime,
+      endTime:       s.endTime,
+      shiftAreaId:   s.shiftAreaId,
     })),
     source: 0,
   };
   return await apiPost(DETAIL_ENDPOINT, body);
 }
 
-
-// REPLACE THE WHOLE selectCourier FUNCTION WITH:
 async function selectCourier(id) {
   selectedId = id;
 
@@ -630,7 +583,7 @@ async function selectCourier(id) {
     c.classList.toggle('selected', c.dataset.id === String(id))
   );
 
-  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('emptyState').style.display    = 'none';
   document.getElementById('courierDetail').style.display = 'flex';
 
   const panel = document.getElementById('detailPanel');
@@ -641,13 +594,11 @@ async function selectCourier(id) {
   const courier = allCouriers.find(c => c.courierId === id);
   if (!courier) return;
 
-  // Render immediately with what we have
   renderDetailHeader(courier);
   renderOverviewTab(courier);
   renderShiftsTab(courier);
   renderLocationTab(courier);
 
-  // Then enrich with full detail
   try {
     const detail = await fetchCourierDetail(courier);
     console.log('[Keeta] detail response:', detail);
@@ -658,7 +609,7 @@ async function selectCourier(id) {
       renderShiftsTab(courier);
       renderLocationTab(courier);
     }
-  } catch (e) {
+  } catch(e) {
     console.warn('[Keeta] detail fetch failed:', e.message);
   }
 }
@@ -688,7 +639,6 @@ function renderDetailHeader(c) {
   setText('detailPhone', `📞 +${c.courierCountryCode || ''}${c.courierPhoneNumber || '—'}`);
   setText('detailLicense', `🪪 ${c.courierLicenseNumber || '—'}`);
 
-  // Show current active shift area
   const activeShift = (c.shiftTimeRange || []).find(s => s.underSchedule);
   setText('detailArea', `📍 ${activeShift?.shiftAreaName || '—'}`);
 }
@@ -974,7 +924,6 @@ function initMap() {
 function buildMap(el) {
   if (leafletMap) { try { leafletMap.remove(); } catch (_) { } leafletMap = null; mapTileLayer = null; }
 
-  // Centre on Jeddah area by default
   leafletMap = L.map(el, { zoomControl: true }).setView([21.4858, 39.1925], 11);
 
   mapTileLayer = L.tileLayer(tileUrl(), {
@@ -990,12 +939,15 @@ function buildMap(el) {
 
   const activeCouriers = allCouriers.filter(c => c.lat && c.lng && courierStatus(c) !== 'offline');
 
-  const counts = { free: 0, going: 0, delivering: 0 };
+  // Count going (بدون طلب) and delivering (يوصل) separately; free merged into offline
+  const counts = { going: 0, delivering: 0 };
   activeCouriers.forEach(c => {
     const st = courierStatus(c);
-    if (st !== 'offline') counts[st] = (counts[st] || 0) + 1;
+    if (st === 'going') counts.going++;
+    else if (st === 'delivering') counts.delivering++;
   });
-  setText('map-free', counts.free);
+
+  // Update map legend counters (map-free element removed from HTML)
   setText('map-going', counts.going);
   setText('map-delivering', counts.delivering);
   setText('map-total', activeCouriers.length);
@@ -1003,8 +955,17 @@ function buildMap(el) {
   activeCouriers.forEach(courier => {
     const st = courierStatus(courier);
     const timeout = isTimeout(courier);
-    const color = timeout ? '#ef4444'
-      : (st === 'free' ? '#22c55e' : (st === 'going' ? '#3b82f6' : '#f97316'));
+
+    // Color logic:
+    // timeout → red
+    // going (بدون طلب, no order) → green
+    // delivering (يوصل, has order) → orange
+    // free (status 10, hidden) → grey (same as offline, shouldn't appear often)
+    const color = timeout     ? '#ef4444'
+      : st === 'going'        ? '#22c55e'
+      : st === 'delivering'   ? '#f97316'
+      : '#6b7280';
+
     const emoji = st === 'delivering' ? '📦' : '🛵';
 
     const icon = L.divIcon({
@@ -1063,23 +1024,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadCouriers();
 
-  // Nav buttons
   document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
   });
 
-  // Theme / lang toggles
   document.getElementById('btnTheme').addEventListener('click', toggleTheme);
   document.getElementById('btnLang').addEventListener('click', toggleLang);
 
-  // Refresh button
   document.getElementById('btnRefresh').addEventListener('click', () => {
     loadCouriers();
     if (currentPage === 'map') buildMap(document.getElementById('liveMap'));
     if (selectedId) selectCourier(selectedId);
   });
 
-  // Auto refresh toggle
   const toggle = document.getElementById('autoRefreshToggle');
   toggle.addEventListener('change', () => {
     if (toggle.checked) { startAutoRefresh(); toast(t('toast_auto_on'), 'info'); }
@@ -1087,7 +1044,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   if (toggle.checked) startAutoRefresh();
 
-  // Search
   const searchInput = document.getElementById('searchInput');
   const searchClear = document.getElementById('searchClear');
   searchInput.addEventListener('input', () => {
@@ -1102,7 +1058,6 @@ document.addEventListener('DOMContentLoaded', () => {
     applyFiltersAndSort();
   });
 
-  // Filter tabs
   document.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
@@ -1112,18 +1067,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Sort
   document.getElementById('sortSelect').addEventListener('change', e => {
     sortBy = e.target.value;
     applyFiltersAndSort();
   });
 
-  // Detail tabs
   document.querySelectorAll('.detail-tab').forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
-  // Close detail
   document.getElementById('closeDetail').addEventListener('click', () => {
     selectedId = null;
     document.getElementById('courierDetail').style.display = 'none';
@@ -1131,7 +1083,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.courier-card').forEach(c => c.classList.remove('selected'));
   });
 
-  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'r') { e.preventDefault(); loadCouriers(); }
     if (e.key === 'Escape') document.getElementById('closeDetail')?.click();
