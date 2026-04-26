@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keeta · إحصائيات السائقين</title>
+  <meta name="description" content="عرض إحصائيات أداء سائقي كيتا حسب الفرع والتاريخ" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* ── STATS PAGE OVERRIDES ── */
+    html, body { overflow: auto; height: auto; min-height: 100vh; }
+
+    .stats-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-top: var(--header-h);
+    }
+
+    /* ── CONTROLS BAR ── */
+    .controls-bar {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 100;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    [data-theme="light"] .controls-bar { background: #fff; }
+
+    .ctrl-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .ctrl-select, .ctrl-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 13px;
+      padding: 7px 12px;
+      direction: rtl;
+      transition: border-color .2s;
+      cursor: pointer;
+    }
+    .ctrl-input { cursor: text; font-family: var(--font-mono); }
+    .ctrl-select:focus, .ctrl-input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-glow); }
+    .ctrl-select option { background: var(--bg-card); color: var(--text-primary); }
+
+    .btn-load {
+      padding: 7px 20px;
+      background: var(--cyan-dim);
+      border: 1px solid var(--cyan);
+      border-radius: var(--radius-sm);
+      color: var(--cyan);
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-load:hover { background: var(--cyan); color: var(--bg-base); }
+    .btn-load:disabled { opacity: .5; cursor: not-allowed; }
+
+    .btn-export {
+      padding: 7px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      margin-right: auto;
+    }
+    .btn-export:hover { background: var(--green-dim); color: var(--green); border-color: var(--green-dim); }
+
+    /* ── MAIN CONTENT ── */
+    .stats-main {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      animation: fadeInUp .3s ease both;
+    }
+    .sum-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, border-color .2s;
+      box-shadow: var(--shadow-card);
+    }
+    .sum-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .sum-card:hover { transform: translateY(-3px); }
+    .sum-card.sc-total::before   { background: var(--cyan); }
+    .sum-card.sc-finished::before{ background: var(--green); }
+    .sum-card.sc-active::before  { background: var(--orange); }
+    .sum-card.sc-canceled::before{ background: var(--red); }
+    .sum-card.sc-hours::before   { background: var(--blue); }
+
+    .sum-icon  { font-size: 28px; margin-bottom: 8px; display: block; }
+    .sum-num   {
+      display: block;
+      font-size: 36px;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .sum-lbl   { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+
+    .sc-total    .sum-num { color: var(--cyan); }
+    .sc-finished .sum-num { color: var(--green); }
+    .sc-active   .sum-num { color: var(--orange); }
+    .sc-canceled .sum-num { color: var(--red); }
+    .sc-hours    .sum-num { color: var(--blue); }
+
+    /* ── TABLE SECTION ── */
+    .table-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      animation: fadeInUp .4s ease both;
+      box-shadow: var(--shadow-card);
+    }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .table-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .table-count-badge {
+      padding: 2px 9px;
+      background: var(--cyan-glow);
+      border: 1px solid var(--cyan-dim);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .tbl-search {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 12px;
+      padding: 6px 12px;
+      direction: rtl;
+      width: 200px;
+      transition: border-color .2s;
+    }
+    .tbl-search:focus { outline: none; border-color: var(--cyan); }
+    .tbl-search::placeholder { color: var(--text-muted); }
+
+    .couriers-table-wrap { overflow-x: auto; }
+    .couriers-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .couriers-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 10px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color .2s;
+    }
+    .couriers-table th:hover { color: var(--cyan); }
+    .couriers-table th.sort-asc::after  { content: ' ↑'; color: var(--cyan); }
+    .couriers-table th.sort-desc::after { content: ' ↓'; color: var(--cyan); }
+
+    .couriers-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .couriers-table tbody tr:hover td { background: var(--bg-hover); }
+    .couriers-table tbody tr:last-child td { border-bottom: none; }
+
+    .courier-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .mini-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      flex-shrink: 0;
+      font-family: var(--font-main);
+    }
+    .name-text { font-family: var(--font-main); color: var(--text-primary); font-size: 12px; font-weight: 700; }
+
+    /* progress bar in cells */
+    .bar-cell { min-width: 120px; }
+    .bar-wrap { display: flex; align-items: center; gap: 7px; }
+    .bar-bg {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+    .bar-val { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); font-weight: 700; min-width: 28px; text-align: left; }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+
+    /* ── EMPTY / LOADING STATES ── */
+    .state-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .state-icon { font-size: 40px; }
+
+    /* ── EMPTY PAGE PLACEHOLDER ── */
+    .page-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+    .page-empty-inner {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      max-width: 360px;
+    }
+    .page-empty-icon { font-size: 56px; }
+    .page-empty-title { font-size: 18px; font-weight: 900; color: var(--text-secondary); }
+    .page-empty-sub   { font-size: 12px; color: var(--text-muted); line-height: 1.8; }
+
+    /* scrollbar for table */
+    .couriers-table-wrap::-webkit-scrollbar { height: 5px; }
+    .couriers-table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="brand">
+    <span class="brand-icon">🛵</span>
+    <div class="brand-text">
+      <h1>Keeta Stats</h1>
+      <span class="brand-sub">إحصائيات أداء السائقين</span>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <a href="dashboard.html" class="nav-btn" style="text-decoration:none">🏠 الرئيسية</a>
+    <a href="dashboard.html#map" class="nav-btn" style="text-decoration:none">🗺 الخريطة</a>
+    <span class="nav-btn active">📊 الإحصائيات</span>
+  </div>
+
+  <div class="header-actions" style="gap:10px">
+    <button id="btnTheme" class="btn-setting">☀️ فاتح</button>
+  </div>
+</header>
+
+<!-- ── CONTROLS BAR ── -->
+<div class="controls-bar">
+  <span class="ctrl-label">التاريخ</span>
+  <input type="date" id="dateInput" class="ctrl-input" />
+
+  <button id="btnLoad" class="btn-load">
+    🔍 عرض الإحصائيات
+  </button>
+
+  <button id="btnExport" class="btn-export" style="display:none">
+    📥 تصدير CSV
+  </button>
+</div>
+
+<!-- ── MAIN ── -->
+<main class="stats-main" id="statsMain">
+
+  <!-- placeholder before first load -->
+  <div class="page-empty" id="pagePlaceholder">
+    <div class="page-empty-inner">
+      <span class="page-empty-icon">📊</span>
+      <div class="page-empty-title">اختر التاريخ</div>
+      <div class="page-empty-sub">
+        حدد التاريخ المطلوب ثم اضغط "عرض الإحصائيات"<br>
+        لاسترداد بيانات أداء السائقين.
+      </div>
+    </div>
+  </div>
+
+  <!-- loading spinner (hidden initially) -->
+  <div class="page-empty" id="pageLoading" style="display:none">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--text-muted)">
+      <div class="spinner" style="width:40px;height:40px;border-width:4px"></div>
+      <span style="font-size:13px">جاري تحميل البيانات…</span>
+    </div>
+  </div>
+
+  <!-- data area (hidden initially) -->
+  <div id="dataArea" style="display:none;flex-direction:column;gap:20px">
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" id="summaryGrid">
+      <div class="sum-card sc-total">
+        <span class="sum-icon">👥</span>
+        <span class="sum-num" id="sc-total">—</span>
+        <span class="sum-lbl">إجمالي السائقين</span>
+      </div>
+      <div class="sum-card sc-finished">
+        <span class="sum-icon">✅</span>
+        <span class="sum-num" id="sc-finished">—</span>
+        <span class="sum-lbl">توصيلات مكتملة</span>
+      </div>
+      <div class="sum-card sc-active">
+        <span class="sum-icon">🚚</span>
+        <span class="sum-num" id="sc-active">—</span>
+        <span class="sum-lbl">قيد التوصيل</span>
+      </div>
+      <div class="sum-card sc-canceled">
+        <span class="sum-icon">❌</span>
+        <span class="sum-num" id="sc-canceled">—</span>
+        <span class="sum-lbl">ملغاة</span>
+      </div>
+      <div class="sum-card sc-hours">
+        <span class="sum-icon">⏱</span>
+        <span class="sum-num" id="sc-hours">—</span>
+        <span class="sum-lbl">إجمالي ساعات الاتصال</span>
+      </div>
+    </div>
+
+    <!-- Couriers Table -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">
+          <span>🧑‍✈️</span>
+          <span>تفاصيل السائقين</span>
+          <span class="table-count-badge" id="tableCount">0</span>
+        </div>
+        <input
+          type="text"
+          id="tblSearch"
+          class="tbl-search"
+          placeholder="بحث بالاسم أو المعرّف…"
+        />
+      </div>
+
+      <div class="couriers-table-wrap">
+        <table class="couriers-table" id="couriersTable">
+          <thead>
+            <tr>
+              <th data-col="name">السائق</th>
+              <th data-col="finished" class="sort-desc">✅ مكتملة</th>
+              <th data-col="delivering">🚚 نشطة</th>
+              <th data-col="canceled">❌ ملغاة</th>
+              <th data-col="hours">⏱ ساعات الاتصال</th>
+              <th data-col="status">الحالة</th>
+            </tr>
+          </thead>
+          <tbody id="couriersTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- no results inside table -->
+      <div id="noResults" class="state-box" style="display:none">
+        <span class="state-icon">🔎</span>
+        <span>لا توجد نتائج مطابقة</span>
+      </div>
+    </div>
+
+  </div><!-- /dataArea -->
+
+</main>
+
+<!-- ── TOAST ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="stats.js"></script>
+</body>
+</html>

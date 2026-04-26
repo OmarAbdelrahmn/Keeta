@@ -1122,6 +1122,10 @@ async function sendKeetaStatsJob() {
     statusCode:      c.courierStatus        || 40,
   }));
 
+  // ❗ FIX: DO NOT SEND IF NO COURIERS HAVE BEEN LOADED YET
+
+  console.log('sendKeetaStatsJob payload:', payload);
+
   if (!payload.length) return;
 
   try {

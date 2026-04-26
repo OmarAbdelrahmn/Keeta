@@ -11,7 +11,8 @@
     "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
-    "https://courier.mykeeta.com/*"
+    "https://courier.mykeeta.com/*",
+    "https://express-extension-manager.premiumasp.net/*"
   ],
   "background": {
     "service_worker": "background.js"
