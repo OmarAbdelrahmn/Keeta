@@ -68,7 +68,8 @@ function switchBranch(orgId, orgType, btn) {
   document.getElementById('emptyState').style.display    = 'flex';
   document.querySelectorAll('.courier-card').forEach(c => c.classList.remove('selected'));
 
-  loadCouriers();
+  stopKeetaSender();
+  loadCouriers().then(() => setTimeout(startKeetaSender, 1000));
 }
 
 // ── TRANSLATIONS ───────────────────────────────────────
@@ -1097,12 +1098,59 @@ function stopAutoRefresh() {
   if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
 }
 
+// ── KEETA STATS SENDER ─────────────────────────────────
+const KEETA_STATS_API = 'https://express-extension-manager.premiumasp.net/api/keeta-stats';
+const KEETA_SEND_MS   = 60_000;
+let keetaSendTimer    = null;
+
+async function sendKeetaStatsJob() {
+  if (!allCouriers || !allCouriers.length) return;
+
+  const UTC3_OFFSET_MS = 3 * 60 * 60 * 1000;
+  const nowInUTC3 = new Date(Date.now() + UTC3_OFFSET_MS);
+  const today = nowInUTC3.toISOString().slice(0, 10);
+
+  const payload = allCouriers.map(c => ({
+    courierId:       String(c.courierId),
+    courierName:     courierFullName(c),
+    orgId:           String(ORG_ID),
+    date:            today,
+    finishedTasks:   c.finishedTaskCount    || 0,
+    deliveringTasks: c.deliveryingTaskCount || 0,
+    canceledTasks:   c.canceledTaskCount    || 0,
+    onlineHours:     (c.courierOnlineTime   || 0) / 3_600_000,   // ms → hours
+    statusCode:      c.courierStatus        || 40,
+  }));
+
+  if (!payload.length) return;
+
+  try {
+    await fetch(KEETA_STATS_API, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.warn('sendKeetaStatsJob error:', e);
+  }
+}
+
+function startKeetaSender() {
+  stopKeetaSender();
+  sendKeetaStatsJob();                              // immediate first send
+  keetaSendTimer = setInterval(sendKeetaStatsJob, KEETA_SEND_MS);
+}
+
+function stopKeetaSender() {
+  if (keetaSendTimer) { clearInterval(keetaSendTimer); keetaSendTimer = null; }
+}
+
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme();
   applyLanguage();
 
-  loadCouriers();
+  loadCouriers().then(() => setTimeout(startKeetaSender, 2000));
 
   document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
