@@ -1110,17 +1110,17 @@ async function sendKeetaStatsJob() {
   const nowInUTC3 = new Date(Date.now() + UTC3_OFFSET_MS);
   const today = nowInUTC3.toISOString().slice(0, 10);
 
-  const payload = allCouriers.map(c => ({
-    courierId:       String(c.courierId),
-    courierName:     courierFullName(c),
-    orgId:           String(ORG_ID),
-    date:            today,
-    finishedTasks:   c.finishedTaskCount    || 0,
-    deliveringTasks: c.deliveryingTaskCount || 0,
-    canceledTasks:   c.canceledTaskCount    || 0,
-    onlineHours:     (c.courierOnlineTime   || 0) / 3_600_000,   // ms → hours
-    statusCode:      c.courierStatus        || 40,
-  }));
+const payload = allCouriers.map(c => ({
+  courierId:       String(c.courierId),
+  courierName:     courierFullName(c),
+  orgId:           String(ORG_ID),
+  date:            today,
+  finishedTasks:   c.finishedTaskCount    || 0,
+  deliveringTasks: c.deliveryingTaskCount || 0,
+  canceledTasks:   c.canceledTaskCount    || 0,
+  onlineHours:     (c.courierOnlineTime   || 0) / 3_600_000,
+  statusCode:      isTimeout(c) ? 60 : (c.courierStatus || 40),  // ← ADD THIS
+}));
 
   // ❗ FIX: DO NOT SEND IF NO COURIERS HAVE BEEN LOADED YET
 
